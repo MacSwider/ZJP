@@ -1,0 +1,107 @@
+# ZADANIE 1 - oceny_cli.py
+import sys
+
+def main():
+    args = sys.argv[1:]
+
+    oceny = []
+    flagi = []
+
+    for arg in args:
+        if arg.startswith("--"):
+            flagi.append(arg)
+        else:
+            try:
+                ocena = float(arg)
+                if ocena < 2 or ocena > 5:
+                    print(f"Błąd: ocena {ocena} poza zakresem 2-5")
+                    return
+                oceny.append(ocena)
+            except ValueError:
+                print(f"Błąd: niepoprawna wartość {arg}")
+                return
+
+    if not oceny:
+        print("Brak ocen.")
+        return
+
+    if "--lista" in flagi:
+        print("Lista ocen:", oceny)
+
+    if "--srednia" in flagi:
+        print("Średnia:", sum(oceny) / len(oceny))
+
+    if "--min" in flagi:
+        print("Min:", min(oceny))
+
+    if "--max" in flagi:
+        print("Max:", max(oceny))
+
+
+if __name__ == "__main__":
+    main()
+
+
+# ZADANIE 2- studenci i skala ocen
+
+studenci = [
+    ("Anna", "Kowalska", 91),
+    ("Jan", "Nowak", 64),
+    ("Ola", "Wiśniewska", 78),
+    ("Piotr", "Zieliński", 45),
+    ("Maria", "Wójcik", 100),
+    ("Tomasz", "Lewandowski", 33),
+]
+
+ocena_z_procent = lambda p: (
+    2.0 if p <= 49 else
+    3.0 if p <= 64 else
+    3.5 if p <= 74 else
+    4.0 if p <= 84 else
+    4.5 if p <= 94 else
+    5.0
+)
+
+# map
+oceny = list(map(lambda s: ocena_z_procent(s[2]), studenci))
+
+# filter
+zaliczeni = list(filter(lambda s: s[2] >= 50, studenci))
+
+# sorted
+posortowani = sorted(studenci, key=lambda s: s[2], reverse=True)
+
+# zip
+imiona_nazwiska = list(map(lambda s: f"{s[0]} {s[1]}", studenci))
+lista_par = list(zip(imiona_nazwiska, oceny))
+
+print("Oceny:", oceny)
+print("Zaliczeni:", zaliczeni)
+print("Posortowani:", posortowani)
+print("Lista par:", lista_par)
+
+
+# Zadanie 3 - analiza_logow.py
+
+import re
+
+wzorzec = re.compile(
+    r"(\d{4}-\d{2}-\d{2})\s+"
+    r"(\d{2}:\d{2}:\d{2})\s+"
+    r"(ERROR)\s+"
+    r"(.+)"
+)
+
+bledy = []
+
+with open("logs.txt", "r", encoding="utf-8") as plik:
+    for linia in plik:
+        if "ERROR" in linia:
+            dopasowanie = wzorzec.search(linia)
+            if dopasowanie:
+                data, godzina, poziom, tresc = dopasowanie.groups()
+                bledy.append(f"{data} {godzina} -> {tresc}")
+
+with open("errors.txt", "w", encoding="utf-8") as plik:
+    for blad in bledy:
+        plik.write(blad + "\n")
